@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My Awesome Recipe v2
 
-## Getting Started
+這是一個使用 Next.js 和 Firebase 構建的食譜應用程式。
 
-First, run the development server:
+## 功能特點
 
+- 食譜瀏覽和搜索
+- 食譜收藏功能
+- 用戶個人食譜管理
+- 即時數據同步
+
+## 技術棧
+
+- Next.js
+- Firebase (Firestore)
+- TypeScript
+- Tailwind CSS
+
+## 環境設置
+
+1. 克隆專案：
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/my-awesome-recipe-v2.git
+cd my-awesome-recipe-v2
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. 安裝依賴：
+```bash
+npm install
+# 或
+yarn install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. 環境變數設置：
+   - 複製 `.env.example` 文件並重命名為 `.env`
+   - 在 [Firebase Console](https://console.firebase.google.com/) 創建新專案
+   - 獲取 Firebase 配置資訊
+   - 將配置資訊填入 `.env` 文件：
+```env
+VITE_FIREBASE_API_KEY=your_api_key_here
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
+VITE_FIREBASE_PROJECT_ID=your_project_id_here
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
+VITE_FIREBASE_APP_ID=your_app_id_here
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. 啟動開發服務器：
+```bash
+npm run dev
+# 或
+yarn dev
+```
 
-## Learn More
+在瀏覽器中打開 [http://localhost:3000](http://localhost:3000) 查看應用程式。
 
-To learn more about Next.js, take a look at the following resources:
+## 部署說明
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. 確保您的環境變數已經在部署平台（如 Vercel）中正確設置
+2. 將代碼推送到 GitHub
+3. 連接您的 GitHub 倉庫到部署平台
+4. 觸發部署流程
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 安全注意事項
 
-## Deploy on Vercel
+- 不要將 `.env` 文件提交到版本控制系統
+- 定期更新 Firebase 金鑰
+- 在生產環境中使用適當的安全規則
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 貢獻指南
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Fork 本倉庫
+2. 創建您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 開啟一個 Pull Request
+
+## 授權
+
+本專案採用 MIT 授權 - 查看 [LICENSE](LICENSE) 文件了解詳情
