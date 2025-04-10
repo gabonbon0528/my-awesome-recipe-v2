@@ -1,5 +1,5 @@
 "use client";
-import { cachedGetIngredientType } from "@/services/ingredients";
+import { getPurchasesByIngredient } from "@/services/ingredients";
 import {
   IngredientType,
   SerializedIngredientPurchase,
@@ -46,7 +46,7 @@ export default function IngredientDrawer({
     if (!selectedType) return;
     const fetchIngredientType = async () => {
       try {
-        const purchases = await cachedGetIngredientType(selectedType);
+        const purchases = await getPurchasesByIngredient(selectedType);
         setPurchases(purchases);
       } catch (error) {
         console.error(error);

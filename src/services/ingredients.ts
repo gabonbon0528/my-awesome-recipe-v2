@@ -1,44 +1,60 @@
 import {
+  IngredientPurchase,
+  IngredientType,
+  SerializedIngredientPurchase,
+} from "@/types/ingredients";
+import {
+  AppError,
+  ErrorCode,
+  handleError,
+  logDebug,
+  logError,
+  logInfo,
+  logWarning,
+} from "@/utils/error-handler";
+import {
+  addDoc,
   collection,
   doc,
-  setDoc,
-  addDoc,
-  serverTimestamp,
+  getDoc,
   getDocs,
   query,
-  where,
-  getDoc,
+  serverTimestamp,
+  setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
-import { db } from "../config/firebase";
-import { IngredientPurchase, IngredientType, SerializedIngredientPurchase } from "@/types/ingredients";
-import { cache } from "react";
 import { notFound } from "next/navigation";
+import { cache } from "react";
+import { db } from "../config/firebase";
 
 // 集合參考
 const typesCollectionRef = collection(db, "ingredientTypes");
 const purchasesCollectionRef = collection(db, "purchases");
 
-// --- 新增成分類型 (使用 setDoc，因為我們用成分名稱當 ID) ---
+// --- 新增成分類型 ---
 export async function addIngredientType(name: string, defaultUnit: string) {
-  const ingredientId = name; // 直接使用名稱作為文件 ID
-  const typeDocRef = doc(typesCollectionRef, ingredientId);
   try {
+    logDebug("Adding ingredient type", { name, defaultUnit });
+
+    const ingredientId = name;
+    const typeDocRef = doc(typesCollectionRef, ingredientId);
+
     await setDoc(typeDocRef, {
       name,
       defaultUnit,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
-    console.log(`成分類型 '${name}' 已成功添加/更新，ID: ${ingredientId}`);
+
+    logInfo(`Ingredient type added successfully`, { id: ingredientId, name });
     return ingredientId;
   } catch (error) {
-    console.error(`添加成分類型 '${name}' 時出錯: `, error);
-    return null;
+    throw handleError(error, "addIngredientType");
   }
 }
 
-// --- 新增一筆購買記錄 (使用 addDoc，讓 Firestore 自動生成 ID) ---
+// --- 新增一筆購買記錄 ---
 export async function addPurchase({
   ingredientType,
   brand,
@@ -55,6 +71,8 @@ export async function addPurchase({
   purchaseDate: string;
 }) {
   try {
+    logDebug("Adding purchase record", { ingredientType, brand, price });
+
     const newPurchaseData = {
       ingredientType,
       brand,
@@ -64,131 +82,175 @@ export async function addPurchase({
       purchaseDate,
       createdAt: serverTimestamp(),
     };
+
     const docRef = await addDoc(purchasesCollectionRef, newPurchaseData);
-    console.log(`購買記錄已成功添加，ID: ${docRef.id}`);
+    logInfo(`Purchase record added successfully`, {
+      id: docRef.id,
+      ingredientType,
+    });
     return docRef.id;
   } catch (error) {
-    console.error("添加購買記錄時出錯: ", error);
-    return null;
+    throw handleError(error, "addPurchase");
   }
 }
 
 // --- 讀取所有成分類型 ---
 export async function getAllIngredientTypes(): Promise<IngredientType[]> {
   try {
+    logDebug("Fetching all ingredient types");
+
     const querySnapshot = await getDocs(typesCollectionRef);
     const types: IngredientType[] = [];
+
     querySnapshot.forEach((doc) => {
       types.push({ id: doc.id, ...doc.data() } as IngredientType);
     });
-    console.log("所有成分類型:", types);
+
+    logInfo(`Retrieved ${types.length} ingredient types`);
     return types;
   } catch (error) {
-    console.error("讀取所有成分類型時出錯: ", error);
-    return [];
+    throw handleError(error, "getAllIngredientTypes");
   }
 }
 
-// This will de-duplicate and only make one query.
 export const cachedGetAllIngredientTypes = cache(async () => {
-  const types = await getAllIngredientTypes();
-  if (!types) notFound();
-  return types;
+  try {
+    const types = await getAllIngredientTypes();
+    if (!types.length) {
+      logWarning("No ingredient types found");
+      throw new AppError("No ingredient types found", ErrorCode.NOT_FOUND, 404);
+    }
+    return types;
+  } catch (error) {
+    logError("Error in cachedGetAllIngredientTypes", error);
+    throw error;
+  }
 });
 
 // --- 按成分類型分組的購買記錄 ---
 export async function getPurchasesByIngredientType() {
-  const ingredientTypesSnapshot = await getDocs(typesCollectionRef);
-  const results: { name: string; purchases: SerializedIngredientPurchase[] }[] = [];
+  try {
+    logDebug("Fetching purchases grouped by ingredient type");
 
-  for (const typeDoc of ingredientTypesSnapshot.docs) {
-    const typeData = typeDoc.data();
-    const ingredientName = typeData.name;
-    const purchasesQuery = query(
-      purchasesCollectionRef,
-      where("ingredientType", "==", ingredientName)
+    const querySnapshot = await getDocs(purchasesCollectionRef);
+    const purchasesByType: {
+      name: string;
+      purchases: SerializedIngredientPurchase[];
+    }[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const purchase = {
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate().toISOString(),
+        updatedAt: doc.data().updatedAt?.toDate().toISOString(),
+      } as SerializedIngredientPurchase;
+
+      const existingTypeIndex = purchasesByType.findIndex(
+        (type) => type.name === purchase.ingredientType
+      );
+
+      if (existingTypeIndex === -1) {
+        purchasesByType.push({
+          name: purchase.ingredientType,
+          purchases: [purchase],
+        });
+      } else {
+        purchasesByType[existingTypeIndex].purchases.push(purchase);
+      }
+    });
+
+    logInfo(
+      `Retrieved purchases for ${purchasesByType.length} ingredient types`
     );
-    const purchasesSnapshot = await getDocs(purchasesQuery);
-    const purchases: IngredientPurchase[] = [];
-    purchasesSnapshot.forEach((doc) => {
-      purchases.push({ id: doc.id, ...doc.data() } as IngredientPurchase);
-    });
-
-    results.push({
-      name: ingredientName,
-      purchases: purchases.map((purchase) => ({
-        ...purchase,
-        createdAt: purchase.createdAt?.toDate().toISOString() || new Date().toISOString(),
-        updatedAt: purchase.updatedAt?.toDate().toISOString() || new Date().toISOString(),
-      })),
-    });
+    return purchasesByType;
+  } catch (error) {
+    throw handleError(error, "getPurchasesByIngredientType");
   }
-
-  console.log("按成分類型分組的購買記錄:", results);
-  return results;
 }
 
-// --- 按成分類型分組的購買記錄 (使用 cache) ---
-export const cachedGetPurchasesByIngredientType = cache(async () => {
-  const purchases = await getPurchasesByIngredientType();
-  if (!purchases) notFound();
-  return purchases;
-});
-
 // --- 讀取所有購買記錄 ---
-export async function getAllPurchases(): Promise<SerializedIngredientPurchase[]> {
-  const querySnapshot = await getDocs(purchasesCollectionRef);
-  const purchases: SerializedIngredientPurchase[] = [];
-  querySnapshot.forEach((doc) => {
-    purchases.push({ id: doc.id, ...doc.data() } as SerializedIngredientPurchase);
-  });
-  return purchases;
+export async function getAllPurchases(): Promise<
+  SerializedIngredientPurchase[]
+> {
+  try {
+    logDebug("Fetching all purchases");
+
+    const querySnapshot = await getDocs(purchasesCollectionRef);
+    const purchases: SerializedIngredientPurchase[] = [];
+
+    querySnapshot.forEach((doc) => {
+      purchases.push({
+        id: doc.id,
+        ...doc.data(),
+      } as SerializedIngredientPurchase);
+    });
+
+    logInfo(`Retrieved ${purchases.length} purchases`);
+    return purchases;
+  } catch (error) {
+    throw handleError(error, "getAllPurchases");
+  }
 }
 
 // --- 根據 ID 讀取單一購買記錄 ---
 export async function getPurchaseById(
   purchaseId: string
 ): Promise<IngredientPurchase | null> {
-  const purchaseDocRef = doc(purchasesCollectionRef, purchaseId);
   try {
+    logDebug("Fetching purchase by ID", { purchaseId });
+
+    const purchaseDocRef = doc(purchasesCollectionRef, purchaseId);
     const docSnap = await getDoc(purchaseDocRef);
+
     if (docSnap.exists()) {
-      return {
+      const purchase = {
         ...docSnap.data(),
         id: docSnap.id,
-        createdAt: docSnap.data().createdAt.toDate().toISOString(),
+        createdAt: docSnap.data().createdAt?.toDate().toISOString(),
       } as IngredientPurchase;
+
+      logInfo(`Purchase found`, { purchaseId });
+      return purchase;
     } else {
-      console.log(`找不到購買記錄: ${purchaseId}`);
-      return null;
+      logWarning(`Purchase not found`, { purchaseId });
+      throw new AppError(
+        `Purchase not found: ${purchaseId}`,
+        ErrorCode.NOT_FOUND,
+        404
+      );
     }
   } catch (error) {
-    console.error(`讀取購買記錄 '${purchaseId}' 時出錯: `, error);
-    return null;
+    throw handleError(error, "getPurchaseById");
   }
 }
 
-// --- 更新購買記錄資訊 (例如：更新價格和添加備註) ---
+// --- 更新購買記錄 ---
 export async function updatePurchaseDetails(
   purchaseId: string,
   updateData: Partial<SerializedIngredientPurchase>
 ) {
-  const purchaseDocRef = doc(purchasesCollectionRef, purchaseId);
-  const dataToUpdate = {
-    ...updateData,
-    updatedAt: serverTimestamp(),
-  };
   try {
+    logDebug("Updating purchase details", { purchaseId, updateData });
+
+    const purchaseDocRef = doc(purchasesCollectionRef, purchaseId);
+    const dataToUpdate = {
+      ...updateData,
+      updatedAt: serverTimestamp(),
+    };
+
     await updateDoc(purchaseDocRef, dataToUpdate);
-    console.log(`購買記錄 '${purchaseId}' 的資訊已更新`);
+    logInfo(`Purchase updated successfully`, { purchaseId });
   } catch (error) {
-    console.error(`更新購買記錄 '${purchaseId}' 時出錯: `, error);
+    throw handleError(error, "updatePurchaseDetails");
   }
 }
 
-// --- 根據 ID (名稱) 讀取單一成分類型 ---
-export async function getIngredientType(ingredientName: string) {
+// --- 根據名稱讀取成分類型 ---
+export async function getPurchasesByIngredient(ingredientName: string) {
   try {
+    logDebug("Fetching purchases by ingredient name", { ingredientName });
+
     const purchasesQuery = query(
       purchasesCollectionRef,
       where("ingredientType", "==", ingredientName)
@@ -196,24 +258,34 @@ export async function getIngredientType(ingredientName: string) {
     const purchasesSnapshot = await getDocs(purchasesQuery);
     const purchases: SerializedIngredientPurchase[] = [];
     purchasesSnapshot.forEach((doc) => {
-      purchases.push({ id: doc.id, ...doc.data() } as SerializedIngredientPurchase);
+      purchases.push({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate().toISOString(),
+        updatedAt: doc.data().updatedAt?.toDate().toISOString(),
+      } as SerializedIngredientPurchase);
     });
 
     if (purchases.length > 0) {
-      console.log("成分類型資料:", purchases);
+      logInfo(`Purchases found`, { purchases });
       return purchases;
     } else {
-      console.log(`找不到成分類型: ${ingredientName}`);
-      return [];
+      logWarning(`Purchases not found`, { ingredientName });
+      throw new AppError(
+        `Purchases not found: ${ingredientName}`,
+        ErrorCode.NOT_FOUND,
+        404
+      );
     }
   } catch (error) {
-    console.error(`讀取成分類型 '${ingredientName}' 時出錯: `, error);
-    return null;
+    throw handleError(error, "getPurchasesByIngredient");
   }
 }
 
-export const cachedGetIngredientType = cache(async (ingredientName: string) => {
-  const purchases = await getIngredientType(ingredientName);
-  if (!purchases) notFound();
-  return purchases;
-});
+export const cachedGetPurchasesByIngredient = cache(
+  async (ingredientName: string) => {
+    const purchases = await getPurchasesByIngredient(ingredientName);
+    if (!purchases) notFound();
+    return purchases;
+  }
+);

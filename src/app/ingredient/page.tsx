@@ -1,6 +1,4 @@
-import {
-  cachedGetPurchasesByIngredientType
-} from "@/services/ingredients";
+import { getPurchasesByIngredientType } from "@/services/ingredients";
 import {
   Accordion,
   Box,
@@ -10,14 +8,14 @@ import {
   EmptyState,
   Heading,
   HStack,
-  Span
+  Span,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { FaPlus } from "react-icons/fa";
 import { FaBoxOpen } from "react-icons/fa6";
 
 export default async function IngredientPage() {
-  const purchasesByIngredientType = await cachedGetPurchasesByIngredientType();
+  const purchasesByIngredientType = await getPurchasesByIngredientType();
 
   return (
     <Box width={"100%"}>

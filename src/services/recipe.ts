@@ -10,6 +10,15 @@ import {
 } from "firebase/firestore";
 import { cache } from "react";
 import { db } from "../config/firebase";
+import {
+  AppError,
+  ErrorCode,
+  handleError,
+  logDebug,
+  logError,
+  logInfo,
+  logWarning,
+} from "@/utils/error-handler";
 
 // 集合參考
 const recipesCollectionRef = collection(db, "recipes");
@@ -17,79 +26,102 @@ const recipesCollectionRef = collection(db, "recipes");
 // --- 新增一筆食譜 (使用 addDoc，讓 Firestore 自動生成 ID) ---
 export async function addRecipe(recipe: SerializedRecipeType) {
   try {
+    logDebug("Adding new recipe", { recipeName: recipe.recipeName });
+
     const newRecipeData = {
       recipeName: recipe.recipeName,
       recipeItems: recipe.recipeItems,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
+
     const docRef = await addDoc(recipesCollectionRef, newRecipeData);
-    console.log(`食譜已成功添加，ID: ${docRef.id}`);
+    logInfo(`Recipe added successfully`, {
+      id: docRef.id,
+      recipeName: recipe.recipeName,
+    });
     return docRef.id;
   } catch (error) {
-    console.error("添加食譜時出錯: ", error);
-    return null;
+    throw handleError(error, "addRecipe");
   }
 }
 
 // --- 根據 ID 讀取單一食譜---
 export async function getRecipeById(recipeId: string) {
-  try { 
+  try {
+    logDebug("Fetching recipe by ID", { recipeId });
+
     const recipeDocRef = doc(recipesCollectionRef, recipeId);
     const docSnap = await getDoc(recipeDocRef);
+
     if (docSnap.exists()) {
-      return {
+      const recipe = {
         ...docSnap.data(),
         id: docSnap.id,
         createdAt: docSnap.data().createdAt?.toDate().toISOString(),
         updatedAt: docSnap.data().updatedAt?.toDate().toISOString(),
       } as SerializedRecipeType;
+
+      logInfo(`Recipe found`, { recipeId, recipeName: recipe.recipeName });
+      return recipe;
     } else {
-      console.log(`找不到食譜: ${recipeId}`);
-      return null;
+      logWarning(`Recipe not found`, { recipeId });
+      throw new AppError(
+        `Recipe not found: ${recipeId}`,
+        ErrorCode.NOT_FOUND,
+        404
+      );
     }
   } catch (error) {
-    console.error(`讀取食譜 '${recipeId}' 時出錯: `, error);
-    return null;
+    throw handleError(error, "getRecipeById");
   }
 }
 
 export const cachedGetRecipeById = cache(async (recipeId: string) => {
-  const recipe = await getRecipeById(recipeId);
-  // if (!recipe) notFound();
-  return recipe;
+  try {
+    return await getRecipeById(recipeId);
+  } catch (error) {
+    logError("Error in cachedGetRecipeById", error);
+    throw error;
+  }
 });
 
-// --- 更新食譜資訊 (例如：更新食譜名稱) ---
+// --- 更新食譜資訊 ---
 export async function updateRecipe(
   recipeId: string,
   updateData: Partial<SerializedRecipeType>
 ) {
-  const recipeDocRef = doc(recipesCollectionRef, recipeId);
-  const dataToUpdate = {
-    ...updateData,
-    updatedAt: serverTimestamp(),
-  };
   try {
+    logDebug("Updating recipe", { recipeId, updateData });
+
+    const recipeDocRef = doc(recipesCollectionRef, recipeId);
+    const dataToUpdate = {
+      ...updateData,
+      updatedAt: serverTimestamp(),
+    };
+
     await updateDoc(recipeDocRef, dataToUpdate);
-    console.log(`食譜 '${recipeId}' 的資訊已更新`);
+    logInfo(`Recipe updated successfully`, { recipeId });
   } catch (error) {
-    console.error(`更新食譜 '${recipeId}' 時出錯: `, error);
+    throw handleError(error, "updateRecipe");
   }
 }
 
 // --- 讀取所有食譜 ---
 export async function getAllRecipes(): Promise<RecipeType[]> {
   try {
+    logDebug("Fetching all recipes");
+
     const querySnapshot = await getDocs(recipesCollectionRef);
     const recipes: RecipeType[] = [];
+
     querySnapshot.forEach((doc) => {
       recipes.push({ id: doc.id, ...doc.data() } as RecipeType);
     });
-    console.log("所有食譜:", recipes);
+
+    logInfo(`Retrieved ${recipes.length} recipes`);
     return recipes;
   } catch (error) {
-    console.error("讀取所有食譜時出錯: ", error);
-    return [];
+    throw handleError(error, "getAllRecipes");
   }
 }
