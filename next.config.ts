@@ -11,7 +11,6 @@ const nextConfig: NextConfig = {
   },
   // 啟用 React strict mode
   reactStrictMode: true,
-  // 配置圖片域名（如果需要）
 };
 
 export default nextConfig;
