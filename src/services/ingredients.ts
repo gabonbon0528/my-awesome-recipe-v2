@@ -198,6 +198,7 @@ export async function getPurchaseById(
   purchaseId: string
 ): Promise<IngredientPurchase | null> {
   try {
+    if(purchaseId === "create") return null;
     logDebug("Fetching purchase by ID", { purchaseId });
 
     const purchaseDocRef = doc(purchasesCollectionRef, purchaseId);

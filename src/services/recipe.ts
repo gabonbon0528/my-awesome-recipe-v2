@@ -49,6 +49,7 @@ export async function addRecipe(recipe: SerializedRecipeType) {
 // --- 根據 ID 讀取單一食譜---
 export async function getRecipeById(recipeId: string) {
   try {
+    if(recipeId === "create") return null;
     logDebug("Fetching recipe by ID", { recipeId });
 
     const recipeDocRef = doc(recipesCollectionRef, recipeId);
