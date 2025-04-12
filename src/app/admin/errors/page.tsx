@@ -3,7 +3,7 @@ import ErrorDashboardClient from "@/components/errorDashboard/ErrorDashboardClie
 
 export default function ErrorsPage() {
   return (
-    <div className="h-full bg-gray-100 w-full">
+    <div className="h-fit-content min-h-full bg-gray-100 w-full">
       <ErrorDashboardClient />
     </div>
   );
