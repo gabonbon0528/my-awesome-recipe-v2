@@ -1,11 +1,5 @@
 import React from 'react';
-import dynamic from 'next/dynamic';
-
-// 使用動態導入避免 SSR 問題
-const ErrorDashboard = dynamic(
-  () => import('@/components/ErrorDashboard/ErrorDashboard'),
-  { ssr: false }
-);
+import ErrorDashboardClient from '@/components/ErrorDashboard/ErrorDashboardClient';
 
 export default function ErrorsPage() {
   return (
@@ -20,7 +14,7 @@ export default function ErrorsPage() {
         </header>
         <main>
           <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <ErrorDashboard />
+            <ErrorDashboardClient />
           </div>
         </main>
       </div>
