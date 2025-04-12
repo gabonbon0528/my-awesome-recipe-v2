@@ -1,4 +1,4 @@
-import { errorTracking } from './error-tracking';
+import { errorTracking } from "./error-tracking";
 
 // 自定義錯誤類型
 export class AppError extends Error {
@@ -9,17 +9,17 @@ export class AppError extends Error {
     public details?: unknown
   ) {
     super(message);
-    this.name = 'AppError';
+    this.name = "AppError";
   }
 }
 
 // 錯誤代碼枚舉
 export enum ErrorCode {
-  FIREBASE_ERROR = 'FIREBASE_ERROR',
-  NOT_FOUND = 'NOT_FOUND',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  UNAUTHORIZED = 'UNAUTHORIZED',
-  INTERNAL_ERROR = 'INTERNAL_ERROR',
+  FIREBASE_ERROR = "FIREBASE_ERROR",
+  NOT_FOUND = "NOT_FOUND",
+  VALIDATION_ERROR = "VALIDATION_ERROR",
+  UNAUTHORIZED = "UNAUTHORIZED",
+  INTERNAL_ERROR = "INTERNAL_ERROR",
 }
 
 // 錯誤處理函數
@@ -32,9 +32,17 @@ export function handleError(error: unknown, context: string): AppError {
   }
 
   // Firebase 錯誤處理
-  if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'string' && error.code.startsWith('firebase/')) {
+  if (
+    error &&
+    typeof error === "object" &&
+    "code" in error &&
+    typeof error.code === "string" &&
+    error.code.startsWith("firebase/")
+  ) {
     const appError = new AppError(
-      `Firebase error: ${error instanceof Error ? error.message : 'Unknown Firebase error'}`,
+      `Firebase error: ${
+        error instanceof Error ? error.message : "Unknown Firebase error"
+      }`,
       ErrorCode.FIREBASE_ERROR,
       500,
       error
@@ -45,7 +53,7 @@ export function handleError(error: unknown, context: string): AppError {
 
   // 通用錯誤處理
   const appError = new AppError(
-    error instanceof Error ? error.message : 'An unexpected error occurred',
+    error instanceof Error ? error.message : "An unexpected error occurred",
     ErrorCode.INTERNAL_ERROR,
     500,
     error
@@ -56,7 +64,7 @@ export function handleError(error: unknown, context: string): AppError {
 
 // 日誌記錄函數
 export function logInfo(message: string, data?: unknown) {
-  console.log(`[INFO] ${message}`, data ? data : '');
+  console.log(`[INFO] ${message}`, data ? data : "");
 }
 
 export function logError(message: string, error: unknown) {
@@ -64,11 +72,11 @@ export function logError(message: string, error: unknown) {
 }
 
 export function logWarning(message: string, data?: unknown) {
-  console.warn(`[WARNING] ${message}`, data ? data : '');
+  console.warn(`[WARNING] ${message}`, data ? data : "");
 }
 
 export function logDebug(message: string, data?: unknown) {
-  if (process.env.NODE_ENV === 'development') {
-    console.debug(`[DEBUG] ${message}`, data ? data : '');
+  if (process.env.NODE_ENV === "development") {
+    console.debug(`[DEBUG] ${message}`, data ? data : "");
   }
-} 
+}
