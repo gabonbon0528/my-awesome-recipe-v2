@@ -16,6 +16,12 @@ export const calculate = (expression: string): number => {
     if (tokens[i] === "*" || tokens[i] === "/") {
       const num1 = parseFloat(tokens[i - 1]);
       const num2 = parseFloat(tokens[i + 1]);
+      
+      // 檢查除以零的情況
+      if (tokens[i] === "/" && num2 === 0) {
+        throw new Error("不能除以零");
+      }
+      
       const result = tokens[i] === "*" ? num1 * num2 : num1 / num2;
       tokens.splice(i - 1, 3, result.toString());
       i--;

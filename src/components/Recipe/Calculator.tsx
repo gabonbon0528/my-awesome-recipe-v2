@@ -111,6 +111,14 @@ export const Calculator = () => {
     onToggle();
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (!/^\d*$/.test(value)) {
+      return;
+    }
+    setInput(value);
+  };
+
   const numberButtons = useMemo(
     () =>
       Array.from({ length: 10 }, (_, i) => (
@@ -167,7 +175,7 @@ export const Calculator = () => {
               outline="none"
               border="none"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={handleInputChange}
               flex={1}
             />
             <VStack gap="1" alignItems="flex-start" flex={1}>
