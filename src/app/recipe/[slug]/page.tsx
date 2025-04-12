@@ -1,5 +1,5 @@
 import { Flex } from "@chakra-ui/react";
-import RecipeTable from "../../../components/Recipe/RecipeTable";
+import RecipeTable from "@/components/recipe/RecipeTable";
 import { cachedGetRecipeById, getAllRecipes } from "@/services/recipe";
 
 export default async function Page({

@@ -1,10 +1,10 @@
+import IngredientForm from "@/components/ingredient/IngredientForm";
 import {
   cachedGetAllIngredientTypes,
   getAllPurchases,
   getPurchaseById,
 } from "@/services/ingredients";
 import { Box } from "@chakra-ui/react";
-import IngredientForm from "../../../components/Ingredient/IngredientForm";
 
 export default async function Page({
   params,

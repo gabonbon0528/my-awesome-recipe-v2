@@ -1,5 +1,5 @@
+import LoginButton from "@/components/login/LoginButton";
 import { Flex, Text } from "@chakra-ui/react";
-import LoginButton from "../../components/Login/LoginButton";
 
 export default function LoginPage() {
   return (

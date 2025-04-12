@@ -1,9 +1,9 @@
 import React from "react";
-import ErrorDashboardClient from "@/components/ErrorDashboard/ErrorDashboardClient";
+import ErrorDashboardClient from "@/components/errorDashboard/ErrorDashboardClient";
 
 export default function ErrorsPage() {
   return (
-    <div className="min-h-screen bg-gray-100 w-full">
+    <div className="h-full bg-gray-100 w-full">
       <ErrorDashboardClient />
     </div>
   );
