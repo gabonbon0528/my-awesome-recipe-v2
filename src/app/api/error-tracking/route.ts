@@ -112,7 +112,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// 添加 GET 方法以獲取錯誤日誌
 export async function GET() {
   try {
     const logs = readErrorLogs();
@@ -133,4 +132,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+} 
