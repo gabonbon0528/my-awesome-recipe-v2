@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { zhTW } from "date-fns/locale";
+import { Box, Spinner, VStack } from "@chakra-ui/react";
 
 interface ErrorLog {
   message: string;
@@ -26,6 +27,8 @@ export default function ErrorDashboard() {
       try {
         setLoading(true);
         const response = await fetch("/api/error-tracking");
+
+        console.log("response =====", response);
 
         if (!response.ok) {
           throw new Error(
@@ -72,9 +75,9 @@ export default function ErrorDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
+      <Box display="flex" justifyContent="center" alignItems="center" h="100vh">
+        <Spinner />
+      </Box>
     );
   }
 
@@ -91,60 +94,72 @@ export default function ErrorDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <VStack mx="auto" padding={4}>
       <h1 className="text-2xl font-bold mb-6">錯誤追蹤儀表板</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
-            <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <Box paddingX={4} paddingY={5} className="border-b border-gray-200">
               <h2 className="text-lg font-medium text-gray-900">最近錯誤</h2>
-            </div>
+            </Box>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    <Box
+                      as="th"
+                      paddingX={6}
+                      paddingY={3}
+                      className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       時間
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    </Box>
+                    <Box
+                      as="th"
+                      paddingX={6}
+                      paddingY={3}
+                      className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       錯誤代碼
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    </Box>
+                    <Box
+                      as="th"
+                      paddingX={6}
+                      paddingY={3}
+                      className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       消息
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    </Box>
+                    <Box
+                      as="th"
+                      paddingX={6}
+                      paddingY={3}
+                      className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       狀態碼
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    </Box>
+                    <Box
+                      as="th"
+                      paddingX={6}
+                      paddingY={3}
+                      className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
                       上下文
-                    </th>
+                    </Box>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {errors.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan={5}
-                        className="px-6 py-4 text-center text-sm text-gray-500"
+                      <Box
+                        as="td"
+                        paddingX={6}
+                        paddingY={4}
+                        className="text-center text-sm text-gray-500"
                       >
                         沒有錯誤記錄
-                      </td>
+                      </Box>
                     </tr>
                   ) : (
                     errors.map((error, index) => (
@@ -153,27 +168,48 @@ export default function ErrorDashboard() {
                         className="hover:bg-gray-50 cursor-pointer"
                         onClick={() => setSelectedError(error)}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <Box
+                          as="td"
+                          paddingX={6}
+                          paddingY={4}
+                          className="whitespace-nowrap text-sm text-gray-500"
+                        >
                           {formatDate(error.timestamp)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        </Box>
+                        <Box
+                          as="td"
+                          paddingX={6}
+                          paddingY={4}
+                          className="whitespace-nowrap text-sm font-medium text-gray-900"
+                        >
                           {error.code}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500 truncate max-w-xs">
+                        </Box>
+                        <Box
+                          as="td"
+                          paddingX={6}
+                          paddingY={4}
+                          className="whitespace-nowrap text-sm text-gray-500 truncate max-w-xs"
+                        >
                           {error.message}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                              error.statusCode
-                            )}`}
-                          >
-                            {error.statusCode}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        </Box>
+                        <Box
+                          as="td"
+                          paddingX={2}
+                          paddingY={4}
+                          className={`inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                            error.statusCode
+                          )}`}
+                        >
+                          {error.statusCode}
+                        </Box>
+                        <Box
+                          as="td"
+                          paddingX={6}
+                          paddingY={4}
+                          className="whitespace-nowrap text-sm text-gray-500"
+                        >
                           {error.context}
-                        </td>
+                        </Box>
                       </tr>
                     ))
                   )}
@@ -186,59 +222,67 @@ export default function ErrorDashboard() {
         <div className="lg:col-span-1">
           {selectedError ? (
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
-              <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+              <Box
+                paddingX={4}
+                paddingY={5}
+                className="border-b border-gray-200"
+              >
                 <h2 className="text-lg font-medium text-gray-900">錯誤詳情</h2>
-              </div>
-              <div className="px-4 py-5 sm:p-6">
+              </Box>
+              <Box paddingX={4} paddingY={5}>
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-4">
                   <div>
                     <dt className="text-sm font-medium text-gray-500">
                       錯誤代碼
                     </dt>
-                    <dd className="mt-1 text-sm text-gray-900">
+                    <Box as="dd" mt={1} className="text-sm text-gray-900">
                       {selectedError.code}
-                    </dd>
+                    </Box>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">消息</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
+                    <Box as="dd" mt={1} className="text-sm text-gray-900">
                       {selectedError.message}
-                    </dd>
+                    </Box>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">
                       狀態碼
                     </dt>
-                    <dd className="mt-1 text-sm text-gray-900">
+                    <Box as="dd" mt={1} className="text-sm text-gray-900">
                       {selectedError.statusCode}
-                    </dd>
+                    </Box>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">
                       上下文
                     </dt>
-                    <dd className="mt-1 text-sm text-gray-900">
+                    <Box as="dd" mt={1} className="text-sm text-gray-900">
                       {selectedError.context}
-                    </dd>
+                    </Box>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">時間</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
+                    <Box as="dd" mt={1} className="text-sm text-gray-900">
                       {formatDate(selectedError.timestamp)}
-                    </dd>
+                    </Box>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">環境</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
+                    <Box as="dd" mt={1} className="text-sm text-gray-900">
                       {selectedError.environment || "未知"}
-                    </dd>
+                    </Box>
                   </div>
                   {selectedError.url && (
                     <div>
                       <dt className="text-sm font-medium text-gray-500">URL</dt>
-                      <dd className="mt-1 text-sm text-gray-900 break-all">
+                      <Box
+                        as="dd"
+                        mt={1}
+                        className="text-sm text-gray-900 break-all"
+                      >
                         {selectedError.url}
-                      </dd>
+                      </Box>
                     </div>
                   )}
                   {selectedError.userAgent && (
@@ -246,9 +290,13 @@ export default function ErrorDashboard() {
                       <dt className="text-sm font-medium text-gray-500">
                         用戶代理
                       </dt>
-                      <dd className="mt-1 text-sm text-gray-900 break-all">
+                      <Box
+                        as="dd"
+                        mt={1}
+                        className="text-sm text-gray-900 break-all"
+                      >
                         {selectedError.userAgent}
-                      </dd>
+                      </Box>
                     </div>
                   )}
                   {selectedError.stack && (
@@ -256,9 +304,13 @@ export default function ErrorDashboard() {
                       <dt className="text-sm font-medium text-gray-500">
                         堆疊追蹤
                       </dt>
-                      <dd className="mt-1 text-sm text-gray-900 whitespace-pre-wrap font-mono bg-gray-100 p-2 rounded overflow-auto max-h-40">
+                      <Box
+                        as="dd"
+                        mt={1}
+                        className="text-sm text-gray-900 whitespace-pre-wrap font-mono bg-gray-100 p-2 rounded overflow-auto max-h-40"
+                      >
                         {selectedError.stack}
-                      </dd>
+                      </Box>
                     </div>
                   )}
                   {selectedError.details && (
@@ -266,26 +318,38 @@ export default function ErrorDashboard() {
                       <dt className="text-sm font-medium text-gray-500">
                         詳細信息
                       </dt>
-                      <dd className="mt-1 text-sm text-gray-900 whitespace-pre-wrap font-mono bg-gray-100 p-2 rounded overflow-auto max-h-40">
+                      <Box
+                        as="dd"
+                        mt={1}
+                        className="text-sm text-gray-900 whitespace-pre-wrap font-mono bg-gray-100 p-2 rounded overflow-auto max-h-40"
+                      >
                         {JSON.stringify(selectedError.details, null, 2)}
-                      </dd>
+                      </Box>
                     </div>
                   )}
                 </dl>
-              </div>
+              </Box>
             </div>
           ) : (
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
-              <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
+              <Box
+                paddingX={4}
+                paddingY={5}
+                className="border-b border-gray-200"
+              >
                 <h2 className="text-lg font-medium text-gray-900">錯誤詳情</h2>
-              </div>
-              <div className="px-4 py-5 sm:p-6 text-center text-gray-500">
+              </Box>
+              <Box
+                paddingX={4}
+                paddingY={5}
+                className="text-center text-gray-500"
+              >
                 請選擇一個錯誤以查看詳情
-              </div>
+              </Box>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </VStack>
   );
 }
