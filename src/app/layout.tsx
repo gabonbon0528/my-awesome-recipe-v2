@@ -15,6 +15,7 @@ export default function RootLayout({
           <Toaster />
           <MainLayout>{children}</MainLayout>
         </Provider>
+        <div id="modal-root"></div>
       </body>
     </html>
   );
