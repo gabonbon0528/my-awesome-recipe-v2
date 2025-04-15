@@ -1,5 +1,4 @@
-import { Button, Heading, HStack, VStack } from "@chakra-ui/react";
-import Link from "next/link";
+import { Button, Heading, HStack, VStack, Link } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa6";
 import RecipeList from "@/components/recipe/RecipeList";
 import { getAllRecipes } from "@/services/recipe";
