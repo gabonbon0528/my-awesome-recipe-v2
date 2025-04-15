@@ -12,7 +12,12 @@ export default async function RecipePage() {
   }));
 
   return (
-    <VStack width={"100%"} alignItems={"stretch"}>
+    <VStack
+      width={"100%"}
+      alignItems={"stretch"}
+      minW={"620px"}
+      maxW={"1200px"}
+    >
       <HStack justifyContent={"space-between"} pb={2}>
         <Heading size={"3xl"}>食譜</Heading>
         <Link href="/recipe/create">

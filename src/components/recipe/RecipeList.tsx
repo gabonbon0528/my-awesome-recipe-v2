@@ -53,7 +53,6 @@ export default function RecipeList({
       width={"100%"}
       height={"80vh"}
       paddingY={2}
-      maxW={"1200px"}
     >
       <Table.Root size="sm" interactive>
         <Table.Header>
@@ -69,7 +68,7 @@ export default function RecipeList({
           {visibleRecipes.map((recipe) => (
             <Table.Row key={recipe.id}>
               <Table.Cell>
-                <Text truncate maxW={"100px"}>
+                <Text truncate maxW={"100%"}>
                   {recipe.recipeName}
                 </Text>
               </Table.Cell>
@@ -88,7 +87,7 @@ export default function RecipeList({
                 </HStack>
               </Table.Cell>
               <Table.Cell>
-                <Text truncate maxW={"100px"}>
+                <Text truncate maxW={"100%"}>
                   {recipe.note || "--"}
                 </Text>
               </Table.Cell>
