@@ -3,6 +3,8 @@ import { FaPlus } from "react-icons/fa6";
 import RecipeList from "@/components/recipe/RecipeList";
 import { getAllRecipes } from "@/services/recipe";
 
+export const dynamic = "force-dynamic";
+
 export default async function RecipePage() {
   const recipes = await getAllRecipes();
   const serializedRecipes = recipes.map((recipe) => ({
