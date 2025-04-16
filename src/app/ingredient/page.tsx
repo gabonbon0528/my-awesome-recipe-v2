@@ -14,6 +14,8 @@ import Link from "next/link";
 import { FaPlus } from "react-icons/fa";
 import { FaBoxOpen } from "react-icons/fa6";
 
+export const dynamic = "force-dynamic";
+
 export default async function IngredientPage() {
   const purchasesByIngredientType = await getPurchasesByIngredientType();
 

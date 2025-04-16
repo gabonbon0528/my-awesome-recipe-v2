@@ -19,6 +19,7 @@ import {
   logInfo,
   logWarning,
 } from "@/utils/error-handler";
+import { revalidatePath } from "next/cache";
 
 // 集合參考
 const recipesCollectionRef = collection(db, "recipes");
@@ -40,6 +41,7 @@ export async function addRecipe(recipe: SerializedRecipeType) {
       id: docRef.id,
       recipeName: recipe.recipeName,
     });
+    revalidatePath("/recipe");
     return docRef.id;
   } catch (error) {
     throw handleError(error, "addRecipe");
@@ -102,6 +104,7 @@ export async function updateRecipe(
     };
 
     await updateDoc(recipeDocRef, dataToUpdate);
+    revalidatePath("/recipe");
     logInfo(`Recipe updated successfully`, { recipeId });
   } catch (error) {
     throw handleError(error, "updateRecipe");
