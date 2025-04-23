@@ -1,5 +1,14 @@
+"use server";
+
 import { db } from "@/config/firebase";
-import { SignupFormSchema, FormState } from "@/lib/definitions";
+import {
+  SignupFormSchema,
+  FormState,
+  LoginFormSchema,
+} from "@/lib/definitions";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import bcrypt from "bcryptjs";
+import { signIn } from "@/auth";
 
 export async function signup(state: FormState, formData: FormData) {
   // Validate form fields
@@ -9,33 +18,93 @@ export async function signup(state: FormState, formData: FormData) {
     password: formData.get("password"),
   });
 
-  // If any form fields are invalid, return early
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
     };
   }
 
-  // 2. Prepare data for insertion into database
   const { name, email, password } = validatedFields.data;
-  // e.g. Hash the user's password before storing it
-  // const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-  // 3. Insert the user into the database or call an Auth Library's API
-  const data = await db
-    .insert(users)
-    .values({
+  try {
+    // 使用 Firebase 儲存使用者資料
+    const usersRef = collection(db, "users");
+    const docRef = await addDoc(usersRef, {
       name,
       email,
+      password: hashedPassword,
+      createdAt: new Date(),
+    });
+
+    if (!docRef.id) {
+      return {
+        error: "建立帳號時發生錯誤",
+      };
+    }
+
+    // 註冊成功後自動登入
+    await signIn("credentials", {
+      email,
       password,
-    })
-    .returning({ id: users.id });
-
-  const user = data[0];
-
-  if (!user) {
+      redirectTo: "/dashboard",
+    });
+  } catch (error) {
+    console.error("Signup error:", error);
     return {
-      message: "An error occurred while creating your account.",
+      error: "註冊失敗，此 Email 可能已被使用",
+    };
+  }
+}
+
+export async function login(state: FormState, formData: FormData) {
+  try {
+    const validatedFields = LoginFormSchema.safeParse({
+      email: formData.get("email"),
+      password: formData.get("password"),
+    });
+
+    if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+      };
+    }
+
+    const { email, password } = validatedFields.data;
+
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log("💗💗💗 沒有此帳號");
+      return {
+        errors: {email: "沒有此帳號"},
+      };
+    }
+
+    const userDoc = querySnapshot.docs[0];
+    const user = userDoc.data();
+
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user.password as string
+    );
+
+    if (!isPasswordValid) {
+      return {
+        errors: { password: "密碼錯誤" },
+      };
+    }
+
+    await signIn("credentials", {
+      email,
+      password,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    return {
+      errors: { password: "登入失敗" },
     };
   }
 }
