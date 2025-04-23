@@ -7,7 +7,7 @@ export default function LoginPage() {
     <Flex flexDirection={"column"} gap={4} width={"100%"}>
       <Text>LoginPage</Text>
       <LoginForm />
-      <LoginButton />
+      {/* <LoginButton /> */}
     </Flex>
   );
 }
