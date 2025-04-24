@@ -19,7 +19,6 @@ import {
   logInfo,
   logWarning,
 } from "@/utils/error-handler";
-import { revalidatePath } from "next/cache";
 
 // 集合參考
 const recipesCollectionRef = collection(db, "recipes");
@@ -41,7 +40,6 @@ export async function addRecipe(recipe: SerializedRecipeType) {
       id: docRef.id,
       recipeName: recipe.recipeName,
     });
-    revalidatePath("/recipe");
     return docRef.id;
   } catch (error) {
     throw handleError(error, "addRecipe");
@@ -51,7 +49,7 @@ export async function addRecipe(recipe: SerializedRecipeType) {
 // --- 根據 ID 讀取單一食譜---
 export async function getRecipeById(recipeId: string) {
   try {
-    if(recipeId === "create") return null;
+    if (recipeId === "create") return null;
     logDebug("Fetching recipe by ID", { recipeId });
 
     const recipeDocRef = doc(recipesCollectionRef, recipeId);
@@ -104,7 +102,6 @@ export async function updateRecipe(
     };
 
     await updateDoc(recipeDocRef, dataToUpdate);
-    revalidatePath("/recipe");
     logInfo(`Recipe updated successfully`, { recipeId });
   } catch (error) {
     throw handleError(error, "updateRecipe");
