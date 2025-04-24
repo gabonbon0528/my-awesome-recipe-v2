@@ -1,14 +1,21 @@
 "use server";
 
 import { db } from "@/config/firebase";
-import {
-  SignupFormSchema,
-  FormState,
-  LoginFormSchema,
-} from "@/lib/definitions";
+import { SignupFormSchema, LoginFormSchema } from "@/lib/definitions";
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import bcrypt from "bcryptjs";
 import { signIn } from "@/auth";
+
+//使用映射類型（Mapped Type）來避免重複定義相似的欄位
+export type FormState = {
+  errors?:
+    | {
+        [key in "username" | "email" | "password" | "message"]?:
+          | string
+          | string[];
+      }
+    | null;
+};
 
 export async function signup(state: FormState, formData: FormData) {
   // Validate form fields
@@ -58,53 +65,51 @@ export async function signup(state: FormState, formData: FormData) {
 }
 
 export async function login(state: FormState, formData: FormData) {
-  try {
-    const validatedFields = LoginFormSchema.safeParse({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    });
+  const validatedFields = LoginFormSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
 
-    if (!validatedFields.success) {
-      return {
-        errors: validatedFields.error.flatten().fieldErrors,
-      };
-    }
-
-    const { email, password } = validatedFields.data;
-
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      console.log("💗💗💗 沒有此帳號");
-      return {
-        errors: {email: "沒有此帳號"},
-      };
-    }
-
-    const userDoc = querySnapshot.docs[0];
-    const user = userDoc.data();
-
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      user.password as string
-    );
-
-    if (!isPasswordValid) {
-      return {
-        errors: { password: "密碼錯誤" },
-      };
-    }
-
-    await signIn("credentials", {
-      email,
-      password,
-    });
-  } catch (error) {
-    console.error("Login error:", error);
+  if (!validatedFields.success) {
     return {
-      errors: { password: "登入失敗" },
+      errors: validatedFields.error.flatten().fieldErrors,
+    } as FormState;
+  }
+
+  const { email, password } = validatedFields.data;
+
+  const usersRef = collection(db, "users");
+  const q = query(usersRef, where("email", "==", email));
+  const querySnapshot = await getDocs(q);
+
+  if (querySnapshot.empty) {
+    return {
+      errors: { email: "沒有此帳號" },
     };
   }
+
+  const userDoc = querySnapshot.docs[0];
+  const user = userDoc.data();
+  const isPasswordValid = password === user.password;
+
+  if (!isPasswordValid) {
+    return {
+      errors: { password: "密碼錯誤" },
+    };
+  }
+
+  const userId = userDoc.id;
+  const username = user.username;
+
+  const userData = {
+    email: email,
+    username: username,
+    id: userId,
+    redirectTo: "/recipe",
+  };
+
+  //try catch 會影響 redirectTo 的行為
+
+  await signIn("credentials", userData);
+  return { errors: null };
 }
