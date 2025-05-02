@@ -2,6 +2,7 @@ import { MainLayout } from "../components/layout/MainLayout";
 import { Provider } from "../components/ui/provider";
 import "../app/globals.css";
 import { Toaster } from "../components/ui/toaster";
+import { SessionProvider } from "next-auth/react";
 
 export default function RootLayout({
   children,
@@ -11,10 +12,12 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning>
       <body>
-        <Provider>
-          <Toaster />
-          <MainLayout>{children}</MainLayout>
-        </Provider>
+        <SessionProvider>
+          <Provider>
+            <Toaster />
+            {children}
+          </Provider>
+        </SessionProvider>
         <div id="modal-root"></div>
       </body>
     </html>

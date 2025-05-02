@@ -2,33 +2,13 @@ import { IconButton, VStack } from "@chakra-ui/react";
 import Link from "next/link";
 import { FaBookBookmark, FaBurger } from "react-icons/fa6";
 import { Tooltip } from "../ui/tooltip";
-import { BreadCrumbs } from "./BreadCrumbs";
 import UserButton from "./UserButton";
 
-export const MainLayout = (props: { children: React.ReactNode }) => {
-  return (
-    <div className={"flex min-h-screen max-w-screen"}>
-      <Sidebar />
-      <VStack
-        padding={4}
-        alignItems={"flex-start"}
-        gap={4}
-        flex={1}
-        overflowY={"auto"}
-        height={"100vh"}
-      >
-        <BreadCrumbs />
-        {props.children}
-      </VStack>
-    </div>
-  );
-};
-
-export const Sidebar = () => {
+export const Sidebar = async () => {
   return (
     <VStack
-      padding={2}
       gap={2}
+      padding={2}
       bg={"teal"}
       position={"sticky"}
       top={0}
