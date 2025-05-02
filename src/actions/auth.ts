@@ -4,7 +4,7 @@ import { db } from "@/config/firebase";
 import { SignupFormSchema, LoginFormSchema } from "@/lib/definitions";
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import bcrypt from "bcryptjs";
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 
 //使用映射類型（Mapped Type）來避免重複定義相似的欄位
 export type FormState = {
@@ -20,7 +20,7 @@ export type FormState = {
 export async function signup(state: FormState, formData: FormData) {
   // Validate form fields
   const validatedFields = SignupFormSchema.safeParse({
-    name: formData.get("name"),
+    username: formData.get("username"),
     email: formData.get("email"),
     password: formData.get("password"),
   });
@@ -31,14 +31,14 @@ export async function signup(state: FormState, formData: FormData) {
     };
   }
 
-  const { name, email, password } = validatedFields.data;
+  const { username, email, password } = validatedFields.data;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     // 使用 Firebase 儲存使用者資料
     const usersRef = collection(db, "users");
     const docRef = await addDoc(usersRef, {
-      name,
+      username,
       email,
       password: hashedPassword,
       createdAt: new Date(),
@@ -49,19 +49,29 @@ export async function signup(state: FormState, formData: FormData) {
         error: "建立帳號時發生錯誤",
       };
     }
-
-    // 註冊成功後自動登入
-    await signIn("credentials", {
-      email,
-      password,
-      redirectTo: "/dashboard",
-    });
   } catch (error) {
     console.error("Signup error:", error);
     return {
       error: "註冊失敗，此 Email 可能已被使用",
     };
   }
+
+  const usersRef = collection(db, "users");
+  const q = query(usersRef, where("email", "==", email));
+  const querySnapshot = await getDocs(q);
+
+  const userId = querySnapshot.docs[0].id;
+
+  const userData = {
+    email: email,
+    username: username,
+    id: userId,
+    redirectTo: "/recipe",
+  };
+
+  // 註冊成功後自動登入
+  await signIn("credentials", userData);
+  return { errors: null };
 }
 
 export async function login(state: FormState, formData: FormData) {
@@ -90,7 +100,7 @@ export async function login(state: FormState, formData: FormData) {
 
   const userDoc = querySnapshot.docs[0];
   const user = userDoc.data();
-  const isPasswordValid = password === user.password;
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     return {
@@ -112,4 +122,9 @@ export async function login(state: FormState, formData: FormData) {
 
   await signIn("credentials", userData);
   return { errors: null };
+}
+
+export async function logout() {
+  "use server";
+  await signOut();
 }
