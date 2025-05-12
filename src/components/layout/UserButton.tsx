@@ -8,9 +8,8 @@ import { useSession } from "next-auth/react";
 export default function UserButton() {
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
   const router = useRouter();
-  const session = useSession();
-  const user = session?.data?.user as { username: string };
-  console.log("💗💗💗", user);
+  const { data: session, update } = useSession();
+  const user = session?.user as { username: string; imgUrl: string };
 
   const handleMouseDown = () => {
     const timer = setTimeout(() => {
@@ -41,6 +40,10 @@ export default function UserButton() {
     };
   }, [pressTimer]);
 
+  useEffect(() => {
+    update();
+  }, []);
+
   return (
     <Link href="/">
       <Avatar.Root
@@ -52,7 +55,7 @@ export default function UserButton() {
         onTouchEnd={handleMouseUp}
       >
         <Avatar.Fallback name={user?.username ?? ""} />
-        <Avatar.Image src="https://image1.gamme.com.tw/news2/2017/31/14/rJeapKCXlKCZrKQ.jpg" />
+        <Avatar.Image src={user?.imgUrl ?? null} />
       </Avatar.Root>
     </Link>
   );

@@ -10,7 +10,7 @@ import { signIn, signOut } from "@/auth";
 export type FormState = {
   errors?:
     | {
-        [key in "username" | "email" | "password" | "message"]?:
+        [key in "username" | "email" | "password" | "message" | "imgUrl"]?:
           | string
           | string[];
       }
@@ -115,6 +115,7 @@ export async function login(state: FormState, formData: FormData) {
     email: email,
     username: username,
     id: userId,
+    imgUrl: user.imgUrl,
     redirectTo: "/recipe",
   };
 
