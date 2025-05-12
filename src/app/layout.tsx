@@ -1,4 +1,3 @@
-import { MainLayout } from "../components/layout/MainLayout";
 import { Provider } from "../components/ui/provider";
 import "../app/globals.css";
 import { Toaster } from "../components/ui/toaster";
