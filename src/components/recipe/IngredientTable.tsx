@@ -24,6 +24,7 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import { FcFullTrash, FcLock, FcPlus, FcUnlock } from "react-icons/fc";
 import IngredientDrawer from "./IngredientDrawer";
 import { DEFAULT_RECIPE_ITEM } from "./RecipeTable";
 
@@ -37,7 +38,7 @@ export default function IngredientTable() {
     setValue,
   } = form;
 
-  const { fields, insert, remove, replace, append } = useFieldArray({
+  const { fields, remove, replace, append } = useFieldArray({
     control,
     name: "recipeItems",
   });
@@ -85,7 +86,35 @@ export default function IngredientTable() {
     if (isNaN(originalWeight)) return "--";
     const costPerUnit = Number(purchase.price) / Number(purchase.weight);
     if (isNaN(costPerUnit)) return "--";
-    return (costPerUnit * originalWeight).toFixed(0);
+    return (costPerUnit * originalWeight).toFixed(0) + " 元 / g";
+  };
+
+  const handleWeightChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const value = e.target.value;
+    const regex = /^\d*$/;
+    if (!regex.test(value) || Number(value) === 0) return;
+    const recipeItems = getValues("recipeItems");
+
+    if (!isRatioLocked) {
+      recipeItems.forEach((item, itemIndex) => {
+        const itemWeight = Number(item.originalWeight);
+        const ratio = Number(((itemWeight / totalWeight) * 100).toFixed(2));
+        setValue(`recipeItems.${itemIndex}.ratio`, ratio);
+      });
+    } else {
+      const targetRatio = Number(getValues(`recipeItems.${index}.ratio`));
+      recipeItems.forEach((item, itemIndex) => {
+        if (itemIndex === index) return;
+        const itemRatio = Number(item.ratio);
+        const newWeight = ((Number(value) / targetRatio) * itemRatio).toFixed(
+          0
+        );
+        setValue(`recipeItems.${itemIndex}.originalWeight`, newWeight);
+      });
+    }
   };
 
   useEffect(() => {
@@ -100,15 +129,28 @@ export default function IngredientTable() {
     <VStack alignItems={"stretch"} gap={4} flex={1}>
       <HStack justifyContent={"space-between"}>
         <Heading size={"lg"}>材料</Heading>
-        <Button variant={"ghost"} onClick={() => append(DEFAULT_RECIPE_ITEM)}>
-          ➕ 加入材料
-        </Button>
+        <HStack>
+          <Button
+            variant={"ghost"}
+            onClick={() => append(DEFAULT_RECIPE_ITEM, { shouldFocus: false })}
+          >
+            <FcPlus />
+            加入材料
+          </Button>
+          <Button
+            variant={"ghost"}
+            onClick={() => setIsRatioLocked(!isRatioLocked)}
+          >
+            {isRatioLocked ? <FcUnlock /> : <FcLock />}
+            鎖定比例
+          </Button>
+        </HStack>
       </HStack>
       <Table.Root size="md" rounded={"md"} variant="outline">
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader>項目</Table.ColumnHeader>
-            <Table.ColumnHeader>原始材料重量</Table.ColumnHeader>
+            <Table.ColumnHeader>材料重量</Table.ColumnHeader>
             <Table.ColumnHeader textAlign={"center"}>
               <Checkbox.Root
                 variant={"solid"}
@@ -125,7 +167,9 @@ export default function IngredientTable() {
             <Table.ColumnHeader textAlign={"center"}>
               使用原料
             </Table.ColumnHeader>
-            <Table.ColumnHeader textAlign={"center"}>成本</Table.ColumnHeader>
+            <Table.ColumnHeader textAlign={"center"}>
+              單位成本
+            </Table.ColumnHeader>
             <Table.ColumnHeader textAlign={"center"}>刪除</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
@@ -212,7 +256,7 @@ export default function IngredientTable() {
                                     required: "必填欄位",
                                     min: {
                                       value: 1,
-                                      message: "原始材料重量不能為0",
+                                      message: "材料重量不能為0",
                                     },
                                     pattern: {
                                       value: /^\d+$/,
@@ -220,6 +264,7 @@ export default function IngredientTable() {
                                     },
                                   }
                                 )}
+                                onBlur={(e) => handleWeightChange(e, index)}
                               />
                             </InputGroup>
                             <Field.ErrorText>
@@ -231,12 +276,7 @@ export default function IngredientTable() {
                           </Field.Root>
                         </Table.Cell>
                         <Table.Cell textAlign={"center"}>
-                          {/* {getValues(`recipe.${index}.ratio`)} */}
-                          {calculateRatio(
-                            Number(
-                              getValues(`recipeItems.${index}.originalWeight`)
-                            )
-                          )}
+                          {getValues(`recipeItems.${index}.ratio`)} %
                         </Table.Cell>
                         <Table.Cell textAlign={"center"}>
                           <IngredientDrawer
@@ -258,7 +298,7 @@ export default function IngredientTable() {
                             variant={"ghost"}
                             onClick={() => remove(index)}
                           >
-                            ❌
+                            <FcFullTrash />
                           </Button>
                         </Table.Cell>
                       </Table.Row>
