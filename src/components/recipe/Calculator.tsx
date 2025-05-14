@@ -5,6 +5,7 @@ import {
   Center,
   Heading,
   HStack,
+  IconButton,
   Input,
   Presence,
   Stack,
@@ -12,6 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useCallback, useMemo, useState } from "react";
+import { FcCalculator } from "react-icons/fc";
 
 const OPERATOR_BUTTONS = new Map([
   [
@@ -90,7 +92,7 @@ const BUTTON_STYLES = {
   rounded: "full",
 } as const;
 
-export const Calculator = () => {
+export const Calculator = (props: React.ComponentProps<typeof Stack>) => {
   const { open, onToggle } = useDisclosure();
   const [input, setInput] = useState("");
   const [result, setResult] = useState("0");
@@ -151,10 +153,10 @@ export const Calculator = () => {
   );
 
   return (
-    <Stack gap="4">
-      <Button alignSelf="flex-start" onClick={handleToggleButton}>
-        計算機
-      </Button>
+    <Stack gap="4" {...props}>
+      <IconButton onClick={handleToggleButton}>
+        <FcCalculator />計算機
+      </IconButton>
       <Presence
         position="fixed"
         bottom="0"
@@ -185,6 +187,15 @@ export const Calculator = () => {
             <Heading size="5xl" textAlign="center" flex={1}>
               {result}
             </Heading>
+            <IconButton
+              position="absolute"
+              top="0"
+              right="0"
+              onClick={handleToggleButton}
+              variant={"ghost"}
+            >
+              ❌
+            </IconButton>
           </HStack>
         </Center>
       </Presence>

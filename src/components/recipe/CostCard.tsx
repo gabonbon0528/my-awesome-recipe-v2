@@ -1,6 +1,7 @@
 import { SerializedRecipeType } from "@/types/recipe";
 import { Box, Field, Heading, Input, VStack } from "@chakra-ui/react";
 import { useFormContext, useWatch } from "react-hook-form";
+import { Calculator } from "./Calculator";
 
 //TODO: 使用 debounce 來優化
 
@@ -66,6 +67,7 @@ export default function CostCard() {
         <Heading size={"lg"}>每份成本</Heading>
         <Heading size={"2xl"}>{calculateCostPerPortion()}</Heading>
       </Box>
+      <Calculator />
     </VStack>
   );
 }

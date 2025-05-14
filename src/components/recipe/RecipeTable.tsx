@@ -15,7 +15,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { toaster } from "../ui/toaster";
-import { Calculator } from "./Calculator";
 import CostCard from "./CostCard";
 import IngredientTable from "./IngredientTable";
 
@@ -232,7 +231,6 @@ export default function RecipeTable({
           </Field.Root>
         </VStack>
         <HStack justifyContent={"flex-end"} mt={4}>
-          <Calculator />
           <Link href="/recipe">
             <Button size={"md"} colorPalette={"teal"} variant={"outline"}>
               返回
