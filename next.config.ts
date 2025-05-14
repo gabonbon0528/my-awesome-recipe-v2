@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:537952578975:web:dd0398442273aabd8b21aa",
   },
   // 啟用 React strict mode
-  reactStrictMode: true,
+  reactStrictMode: false,
 };
 
 export default nextConfig;
