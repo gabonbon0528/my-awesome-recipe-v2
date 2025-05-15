@@ -2,6 +2,8 @@ import { Flex } from "@chakra-ui/react";
 import RecipeTable from "@/components/recipe/RecipeTable";
 import { cachedGetRecipeById, getAllRecipes } from "@/services/recipe";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page({
   params,
 }: {
