@@ -81,6 +81,7 @@ export async function addPurchase({
       unit,
       purchaseDate,
       createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     };
 
     const docRef = await addDoc(purchasesCollectionRef, newPurchaseData);
