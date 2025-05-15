@@ -16,7 +16,11 @@ export default function CostCard() {
     control,
     name: "recipeItems",
   }).reduce((acc, item) => {
-    return acc + Number(item.purchase?.price ?? 0);
+    const weight = Number(item.originalWeight);
+    const costPerUnit =
+      Number(item.purchase?.price ?? 0) / Number(item.purchase?.weight ?? 0);
+    if (isNaN(weight) || isNaN(costPerUnit)) return acc;
+    return acc + Number((weight * costPerUnit).toFixed(0));
   }, 0);
 
   const portion = useWatch({
