@@ -9,7 +9,7 @@ import {
   Input,
   InputGroup,
   Textarea,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -134,101 +134,105 @@ export default function RecipeTable({
             <IngredientTable />
             <CostCard />
           </HStack>
-          <VStack alignItems={"stretch"} gap={4}>
-            <Heading size="lg">烘焙設定</Heading>
-            <VStack p={4} borderWidth={1} borderRadius={8}>
-              <Field.Root required invalid={!!errors.topTemperature}>
-                <Field.Label>
-                  上火
-                  <Field.RequiredIndicator />
-                </Field.Label>
-                <InputGroup endElement="°C">
-                  <Input
-                    placeholder="180"
-                    {...register("topTemperature", {
-                      required: "必填欄位",
-                      min: {
-                        value: 1,
-                        message: "溫度不能為0",
-                      },
-                      pattern: {
-                        value: /^\d+$/,
-                        message: "請輸入有效的數字",
-                      },
-                    })}
-                  />
-                </InputGroup>
+          <HStack gap={4} width={"100%"} alignItems={"stretch"}>
+            <VStack flexBasis={"25%"} alignItems={"stretch"} gap={4}>
+              <Heading size="lg">烘焙設定</Heading>
+              <VStack p={4} borderWidth={1} borderRadius={8}>
+                <Field.Root required invalid={!!errors.topTemperature}>
+                  <Field.Label>
+                    上火
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <InputGroup endElement="°C">
+                    <Input
+                      placeholder="180"
+                      {...register("topTemperature", {
+                        required: "必填欄位",
+                        min: {
+                          value: 1,
+                          message: "溫度不能為0",
+                        },
+                        pattern: {
+                          value: /^\d+$/,
+                          message: "請輸入有效的數字",
+                        },
+                      })}
+                    />
+                  </InputGroup>
+                  <Field.ErrorText>
+                    {String(errors.topTemperature?.message ?? "")}
+                  </Field.ErrorText>
+                </Field.Root>
+                <Field.Root required invalid={!!errors.bottomTemperature}>
+                  <Field.Label>
+                    下火
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <InputGroup endElement="°C">
+                    <Input
+                      placeholder="180"
+                      {...register("bottomTemperature", {
+                        required: "必填欄位",
+                        min: {
+                          value: 1,
+                          message: "溫度不能為0",
+                        },
+                        pattern: {
+                          value: /^\d+$/,
+                          message: "請輸入有效的數字",
+                        },
+                      })}
+                    />
+                  </InputGroup>
+                  <Field.ErrorText>
+                    {String(errors.bottomTemperature?.message ?? "")}
+                  </Field.ErrorText>
+                </Field.Root>
+                <Field.Root required invalid={!!errors.bakingTime}>
+                  <Field.Label>
+                    烘烤時間
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <InputGroup endElement="分鐘">
+                    <Input
+                      placeholder="180"
+                      {...register("bakingTime", {
+                        required: "必填欄位",
+                        min: {
+                          value: 1,
+                          message: "烘烤時間不能為0",
+                        },
+                        pattern: {
+                          value: /^\d+$/,
+                          message: "請輸入有效的數字",
+                        },
+                      })}
+                    />
+                  </InputGroup>
+                  <Field.ErrorText>
+                    {String(errors.bakingTime?.message ?? "")}
+                  </Field.ErrorText>
+                </Field.Root>
+              </VStack>
+            </VStack>
+            <VStack flexBasis={"75%"} alignItems={"stretch"} gap={4}>
+              <Heading size="lg">備註</Heading>
+              <Field.Root>
+                <Textarea
+                  placeholder="備註"
+                  {...register("note", {
+                    maxLength: {
+                      value: 100,
+                      message: "備註最多只能100個字",
+                    },
+                  })}
+                />
                 <Field.ErrorText>
-                  {String(errors.topTemperature?.message ?? "")}
-                </Field.ErrorText>
-              </Field.Root>
-              <Field.Root required invalid={!!errors.bottomTemperature}>
-                <Field.Label>
-                  下火
-                  <Field.RequiredIndicator />
-                </Field.Label>
-                <InputGroup endElement="°C">
-                  <Input
-                    placeholder="180"
-                    {...register("bottomTemperature", {
-                      required: "必填欄位",
-                      min: {
-                        value: 1,
-                        message: "溫度不能為0",
-                      },
-                      pattern: {
-                        value: /^\d+$/,
-                        message: "請輸入有效的數字",
-                      },
-                    })}
-                  />
-                </InputGroup>
-                <Field.ErrorText>
-                  {String(errors.bottomTemperature?.message ?? "")}
-                </Field.ErrorText>
-              </Field.Root>
-              <Field.Root required invalid={!!errors.bakingTime}>
-                <Field.Label>
-                  烘烤時間
-                  <Field.RequiredIndicator />
-                </Field.Label>
-                <InputGroup endElement="分鐘">
-                  <Input
-                    placeholder="180"
-                    {...register("bakingTime", {
-                      required: "必填欄位",
-                      min: {
-                        value: 1,
-                        message: "烘烤時間不能為0",
-                      },
-                      pattern: {
-                        value: /^\d+$/,
-                        message: "請輸入有效的數字",
-                      },
-                    })}
-                  />
-                </InputGroup>
-                <Field.ErrorText>
-                  {String(errors.bakingTime?.message ?? "")}
+                  {String(errors.note?.message ?? "")}
                 </Field.ErrorText>
               </Field.Root>
             </VStack>
-          </VStack>
-          <Field.Root>
-            <Field.Label>備註</Field.Label>
-            <Textarea
-              placeholder="備註"
-              {...register("note", {
-                maxLength: {
-                  value: 100,
-                  message: "備註最多只能100個字",
-                },
-              })}
-            />
-            <Field.ErrorText>
-              {String(errors.note?.message ?? "")}
-            </Field.ErrorText>
-          </Field.Root>
+          </HStack>
         </VStack>
         <HStack justifyContent={"flex-end"} mt={4}>
           <Link href="/recipe">
