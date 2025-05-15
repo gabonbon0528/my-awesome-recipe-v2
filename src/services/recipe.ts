@@ -1,4 +1,4 @@
-import { RecipeType, SerializedRecipeType } from "@/types/recipe";
+import { RecipeItem, RecipeType, SerializedRecipeType } from "@/types/recipe";
 import {
   addDoc,
   collection,
@@ -30,7 +30,10 @@ export async function addRecipe(recipe: SerializedRecipeType) {
 
     const newRecipeData = {
       recipeName: recipe.recipeName,
-      recipeItems: recipe.recipeItems,
+      recipeItems: recipe.recipeItems.map((item, index) => ({
+        ...item,
+        order: index + 1,
+      })),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
@@ -61,6 +64,11 @@ export async function getRecipeById(recipeId: string) {
         id: docSnap.id,
         createdAt: docSnap.data().createdAt?.toDate().toISOString(),
         updatedAt: docSnap.data().updatedAt?.toDate().toISOString(),
+        recipeItems: docSnap
+          .data()
+          .recipeItems.sort(
+            (a: RecipeItem, b: RecipeItem) => a.order - b.order
+          ),
       } as SerializedRecipeType;
 
       logInfo(`Recipe found`, { recipeId, recipeName: recipe.recipeName });
@@ -98,6 +106,11 @@ export async function updateRecipe(
     const recipeDocRef = doc(recipesCollectionRef, recipeId);
     const dataToUpdate = {
       ...updateData,
+      recipeItems:
+        updateData.recipeItems?.map((item, index) => ({
+          ...item,
+          order: index + 1,
+        })) ?? [],
       updatedAt: serverTimestamp(),
     };
 
