@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { SerializedIngredientPurchase } from "./ingredients";
+import { SerializedTag, Tag } from "./tag";
 
 export interface RecipeItem {
   order: number;
@@ -21,6 +22,7 @@ export interface RecipeType {
   topTemperature: string;
   bottomTemperature: string;
   bakingTime: string;
+  tags: Tag[];
 }
 
 export interface SerializedRecipeType {
@@ -34,4 +36,5 @@ export interface SerializedRecipeType {
   topTemperature: string;
   bottomTemperature: string;
   bakingTime: string;
+  tags: SerializedTag[];
 }
