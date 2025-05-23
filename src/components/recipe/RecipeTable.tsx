@@ -9,7 +9,7 @@ import {
   Input,
   InputGroup,
   Textarea,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { toaster } from "../ui/toaster";
 import CostCard from "./CostCard";
 import IngredientTable from "./IngredientTable";
+import { TagRow } from "./TagRow";
 
 export const DEFAULT_RECIPE_ITEM: RecipeItem = {
   order: 0,
@@ -26,8 +27,6 @@ export const DEFAULT_RECIPE_ITEM: RecipeItem = {
   ratio: 0,
   purchase: null,
 };
-
-//TODO: 鎖定比例
 
 export default function RecipeTable({
   isCreate,
@@ -47,6 +46,7 @@ export default function RecipeTable({
       bottomTemperature: recipe?.bottomTemperature || "",
       bakingTime: recipe?.bakingTime || "",
       note: recipe?.note || "",
+      tags: recipe?.tags || [],
     },
   });
   const {
@@ -231,6 +231,8 @@ export default function RecipeTable({
                   {String(errors.note?.message ?? "")}
                 </Field.ErrorText>
               </Field.Root>
+              <Heading size="lg">標籤</Heading>
+              <TagRow tags={getValues("tags")} />
             </VStack>
           </HStack>
         </VStack>

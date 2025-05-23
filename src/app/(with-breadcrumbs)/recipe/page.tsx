@@ -11,6 +11,10 @@ export default async function RecipePage() {
     ...recipe,
     createdAt: recipe.createdAt?.toDate().toISOString(),
     updatedAt: recipe.updatedAt?.toDate().toISOString(),
+    tags: recipe.tags.map((tag) => ({
+      id: tag.id,
+      name: tag.name,
+    })),
   }));
 
   return (

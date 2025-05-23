@@ -21,3 +21,20 @@ export const LoginFormSchema = z.object({
     .min(8, { message: "至少8個字" })
     .trim(),
 });
+
+export const tagSchema = z.object({
+  name: z.string().min(1),
+  group: z.string().optional(),
+  aliases: z.array(z.string()).optional(),
+  translations: z.record(z.string()).optional(),
+  usageCount: z.number().optional(),
+  lastUsedAt: z.date().optional(),
+  visible: z.boolean().optional(),
+  status: z.enum(["active", "archived", "pending"]).optional(),
+  color: z.string().optional(),
+  icon: z.string().optional(),
+  createdBy: z.string().optional(),
+  createdAt: z.date().optional()
+});
+
+// export type TagInput = z.infer<typeof tagSchema>;

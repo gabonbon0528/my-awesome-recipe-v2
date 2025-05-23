@@ -75,15 +75,11 @@ export default function RecipeList({
               <Table.Cell>{formatDateTime(recipe.updatedAt)}</Table.Cell>
               <Table.Cell>
                 <HStack gap={1}>
-                  <Tag.Root size="sm">
-                    <Tag.Label>{"待"}</Tag.Label>
-                  </Tag.Root>
-                  <Tag.Root size="sm">
-                    <Tag.Label>{"開"}</Tag.Label>
-                  </Tag.Root>
-                  <Tag.Root size="sm">
-                    <Tag.Label>{"發"}</Tag.Label>
-                  </Tag.Root>
+                  {recipe.tags.map((tag) => (
+                    <Tag.Root size="sm" key={tag.id}>
+                      <Tag.Label>{tag.name}</Tag.Label>
+                    </Tag.Root>
+                  ))}
                 </HStack>
               </Table.Cell>
               <Table.Cell>
