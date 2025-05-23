@@ -105,7 +105,7 @@ export const TagRow = (props: { tags: SerializedTag[] }) => {
       </Wrap>
 
       <Combobox.Control width="320px">
-        <Combobox.Input ref={inputRef} />
+        <Combobox.Input ref={inputRef} placeholder="輸入標籤" />
         <Combobox.IndicatorGroup>
           <Combobox.Trigger />
         </Combobox.IndicatorGroup>
