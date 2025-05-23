@@ -61,9 +61,9 @@ export const {
       return token;
     },
     // 步驟 3: 設定 session 中的使用者資料
-    // 這個 callback 在每次請求時都會被調用
+    // 這個 callback 在每次請求(request)時都會被調用
     // session: 目前的會話資訊
-    // token: 包含我們在 jwt callback 中存入的所有資料
+    // token: 包含我們在 jwt callback 中存入的所有資料(從 token 即時生成 session 資訊)
     async session({ session, token }) {
       // 將 token 中的使用者資料同步到 session 中
       // 這樣前端才能通過 useSession() 取得完整的使用者資訊
@@ -110,4 +110,10 @@ export const {
  *
  * 1. 使用者登入 -> server 驗證成功後產生 JWT -> 儲存在瀏覽器 cookie
  * 2. 之後每次請求 -> NextAuth 從 cookie 讀取 JWT -> 將 JWT 資料同步到 session
+ *
+ *   使用者->>伺服器: 1. 登入（輸入帳號密碼）
+ *   伺服器->>伺服器: 2. 驗證身份
+ *   伺服器->>瀏覽器: 3. 產生 JWT Token 並存入 Cookie
+ *   瀏覽器->>伺服器: 4. 後續請求帶上 Token
+ *   伺服器->>伺服器: 5. 驗證 Token
  */
