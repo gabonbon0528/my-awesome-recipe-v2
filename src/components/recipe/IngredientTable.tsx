@@ -5,14 +5,17 @@ import {
 } from "@/types/ingredients";
 import { SerializedRecipeType } from "@/types/recipe";
 import {
+  Box,
   Button,
   Checkbox,
   Field,
   Heading,
+  HoverCard,
   HStack,
   Input,
   InputGroup,
   NativeSelect,
+  Portal,
   Table,
   VStack,
 } from "@chakra-ui/react";
@@ -148,13 +151,30 @@ export default function IngredientTable() {
             <FcPlus />
             加入材料
           </Button>
-          <Button
-            variant={"ghost"}
-            onClick={() => setIsRatioLocked(!isRatioLocked)}
+          <HoverCard.Root
+            size="sm"
+            openDelay={1000}
+            closeDelay={100}
+            positioning={{ placement: "top" }}
           >
-            {isRatioLocked ? <FcUnlock /> : <FcLock />}
-            鎖定比例
-          </Button>
+            <HoverCard.Trigger asChild>
+              <Button
+                variant={"ghost"}
+                onClick={() => setIsRatioLocked(!isRatioLocked)}
+              >
+                {isRatioLocked ? <FcUnlock /> : <FcLock />}
+                鎖定比例
+              </Button>
+            </HoverCard.Trigger>
+            <Portal>
+              <HoverCard.Positioner>
+                <HoverCard.Content maxWidth="240px">
+                  <HoverCard.Arrow />
+                  <Box>鎖定比例後，材料重量會自動調整以符合比例。</Box>
+                </HoverCard.Content>
+              </HoverCard.Positioner>
+            </Portal>
+          </HoverCard.Root>
         </HStack>
       </HStack>
       <Table.Root size="md" rounded={"md"} variant="outline">
